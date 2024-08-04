@@ -20,6 +20,20 @@ def main():
 
     args = parser.parse_args()
 
+    source_path = args.source
+    if not os.path.isdir(source_path):
+        raise FileNotFoundError(
+            f"Source folder path {source_path} is not an existing directory."
+        )
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    console_handler = logging.StreamHandler()
+    logger.addHandler(console_handler)
+
+    replica_path = args.replica
+    sync_interval = args.sync_interval
+    log_file = args.log_file
 
 if __name__ == "__main__":
     main()
