@@ -10,7 +10,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=str, help="Source folder path.")
     parser.add_argument("replica", type=str, help="Replica folder path.")
-    parser.add_argument("sync_interval", type=int, help="Synchronization interval in seconds.")
+    parser.add_argument(
+        "sync_interval", type=int, help="Synchronization interval in seconds."
+    )
     parser.add_argument("log_file", type=str, help="Path to log file.")
 
     args = parser.parse_args()
