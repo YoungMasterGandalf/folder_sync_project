@@ -14,8 +14,8 @@ def setup_logger(log_file: str, log_buffer: int, backup_count: int) -> logging.L
 
     Args:
         log_file (str): Log file path (used by RotatingFileHandler)
-        log_buffer (int): Max size in bytes of each log file.
-        backup_count (int): Number of archived log files.
+        log_buffer (int): Max. size in bytes of each log file.
+        backup_count (int): Max. number of archived log files.
 
     Returns:
         logging.Logger
