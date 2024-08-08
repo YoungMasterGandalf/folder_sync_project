@@ -76,13 +76,13 @@ def main():
     )
     parser.add_argument("log_file", type=str, help="Path to log file.")
 
-    log_buf_default = 512_000
+    LOG_BUF_DEFAULT = 512_000
     parser.add_argument(
         "--log-buffer",
         "--lb",
         type=int,
-        default=log_buf_default,
-        help=f"Log file buffer size in bytes. Default: {log_buf_default}.",
+        default=LOG_BUF_DEFAULT,
+        help=f"Log file buffer size in bytes. Default: {LOG_BUF_DEFAULT}.",
     )
 
     backup_count_default = 5
