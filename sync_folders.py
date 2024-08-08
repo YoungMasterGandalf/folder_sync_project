@@ -8,6 +8,42 @@ import time
 from logging.handlers import RotatingFileHandler
 
 
+def sync_folder(source_path: str, replica_path: str, logger: logging.Logger) -> None:
+    for source_dir, subdirs, filenames in os.walk(source_path):
+        replica_dir = source_dir.replace(source_path, replica_path, 1)
+
+        if not os.path.exists(replica_dir):
+            os.makedirs(replica_dir)
+            logger.info(f"Replica directory CREATED: {replica_dir}.")
+
+        for filename in filenames:
+            source_file = os.path.join(source_dir, filename)
+            replica_file = os.path.join(replica_dir, filename)
+
+            if not os.path.exists(replica_file) or not filecmp.cmp(
+                source_file, replica_file
+            ):
+                shutil.copy2(source_file, replica_file)
+                logger.info(
+                    f"Source file COPIED: {source_file}. New replica: {replica_file}."
+                )
+
+    for replica_dir, subdirs, filenames in os.walk(replica_path, topdown=False):
+        source_dir = replica_dir.replace(replica_path, source_path, 1)
+
+        for filename in filenames:
+            source_file = os.path.join(source_dir, filename)
+
+            if not os.path.exists(source_file):
+                replica_file = os.path.join(replica_dir, filename)
+                os.remove(replica_file)
+                logger.info(f"Replica file DELETED: {replica_file}.")
+
+        if not os.path.exists(source_dir):
+            os.rmdir(replica_dir)
+            logger.info(f"Replica directory DELETED: {replica_dir}.")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=str, help="Source folder path.")
@@ -71,40 +107,7 @@ def main():
 
     while True:
         try:
-            for source_dir, subdirs, filenames in os.walk(source_path):
-                replica_dir = source_dir.replace(source_path, replica_path, 1)
-
-                if not os.path.exists(replica_dir):
-                    os.makedirs(replica_dir)
-                    logger.info(f"Replica directory CREATED: {replica_dir}.")
-
-                for filename in filenames:
-                    source_file = os.path.join(source_dir, filename)
-                    replica_file = os.path.join(replica_dir, filename)
-
-                    if not os.path.exists(replica_file) or not filecmp.cmp(
-                        source_file, replica_file
-                    ):
-                        shutil.copy2(source_file, replica_file)
-                        logger.info(
-                            f"Source file COPIED: {source_file}. New replica: {replica_file}."
-                        )
-
-            for replica_dir, subdirs, filenames in os.walk(replica_path, topdown=False):
-                source_dir = replica_dir.replace(replica_path, source_path, 1)
-
-                for filename in filenames:
-                    source_file = os.path.join(source_dir, filename)
-
-                    if not os.path.exists(source_file):
-                        replica_file = os.path.join(replica_dir, filename)
-                        os.remove(replica_file)
-                        logger.info(f"Replica file DELETED: {replica_file}.")
-
-                if not os.path.exists(source_dir):
-                    os.rmdir(replica_dir)
-                    logger.info(f"Replica directory DELETED: {replica_dir}.")
-
+            sync_folder(source_path, replica_path, logger)
             time.sleep(sync_interval)
         except KeyboardInterrupt:
             logger.info("KeyboardInterrupt: folder synchronization stopped.")
