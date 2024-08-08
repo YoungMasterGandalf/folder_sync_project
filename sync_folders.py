@@ -85,19 +85,18 @@ def main():
         help=f"Log file buffer size in bytes. Default: {LOG_BUF_DEFAULT}.",
     )
 
-    backup_count_default = 5
+    BACKUP_COUNT_DEFAULT = 5
     parser.add_argument(
         "--backup-count",
         "--bc",
         type=int,
-        default=backup_count_default,
-        help=f"Max number of archived log files. Default: {backup_count_default}.",
+        default=BACKUP_COUNT_DEFAULT,
+        help=f"Max number of archived log files. Default: {BACKUP_COUNT_DEFAULT}.",
     )
 
     args = parser.parse_args()
 
     source_path = args.source
-
     if not os.path.isdir(source_path):
         raise FileNotFoundError(
             f"Source folder path {source_path} is not an existing directory."
