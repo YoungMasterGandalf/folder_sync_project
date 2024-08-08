@@ -9,6 +9,18 @@ from logging.handlers import RotatingFileHandler
 
 
 def setup_logger(log_file: str, log_buffer: int, backup_count: int) -> logging.Logger:
+    """
+    Create and setup a formatted logger with a StreamHandler and a RotatingFileHandler attached.
+
+    Args:
+        log_file (str): Log file path (used by RotatingFileHandler)
+        log_buffer (int): Max size in bytes of each log file.
+        backup_count (int): Number of archived log files.
+
+    Returns:
+        logging.Logger
+    """
+
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
@@ -32,6 +44,15 @@ def setup_logger(log_file: str, log_buffer: int, backup_count: int) -> logging.L
 
 
 def sync_folder(source_path: str, replica_path: str, logger: logging.Logger) -> None:
+    """
+    Synchronizes replica folder with source folder. Creates/updates/deletes files and dirs in
+    replica based on comparison with source.
+
+    Args:
+        source_path (str): Path to source folder (source folder must exist).
+        replica_path (str): Path to replica folder.
+        logger (logging.Logger)
+    """
     for source_dir, subdirs, filenames in os.walk(source_path):
         replica_dir = source_dir.replace(source_path, replica_path, 1)
 
