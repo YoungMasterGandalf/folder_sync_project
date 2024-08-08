@@ -5,6 +5,8 @@ import filecmp
 import shutil
 import time
 
+from logging.handlers import RotatingFileHandler
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -15,13 +17,38 @@ def main():
     )
     parser.add_argument("log_file", type=str, help="Path to log file.")
 
+    log_buf_default = 512_000
+    parser.add_argument(
+        "--log-buffer",
+        "--lb",
+        type=int,
+        default=log_buf_default,
+        help=f"Log file buffer size in bytes. Default: {log_buf_default}.",
+    )
+
+    backup_count_default = 5
+    parser.add_argument(
+        "--backup-count",
+        "--bc",
+        type=int,
+        default=backup_count_default,
+        help=f"Max number of archived log files. Default: {backup_count_default}.",
+    )
+
     args = parser.parse_args()
 
     source_path = args.source
+
     if not os.path.isdir(source_path):
         raise FileNotFoundError(
             f"Source folder path {source_path} is not an existing directory."
         )
+
+    replica_path = args.replica
+    sync_interval = args.sync_interval
+    log_file = args.log_file
+    log_buffer = args.log_buffer
+    backup_count = args.backup_count
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
@@ -30,14 +57,17 @@ def main():
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )
 
+    file_handler = RotatingFileHandler(
+        log_file, maxBytes=log_buffer, backupCount=backup_count, encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
 
     logger.addHandler(console_handler)
-
-    replica_path = args.replica
-    sync_interval = args.sync_interval
-    log_file = args.log_file
+    logger.addHandler(file_handler)
 
     while True:
         try:
