@@ -8,6 +8,29 @@ import time
 from logging.handlers import RotatingFileHandler
 
 
+def setup_logger(log_file: str, log_buffer: int, backup_count: int) -> logging.Logger:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+
+    file_handler = RotatingFileHandler(
+        log_file, maxBytes=log_buffer, backupCount=backup_count, encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+    return logger
+
+
 def sync_folder(source_path: str, replica_path: str, logger: logging.Logger) -> None:
     for source_dir, subdirs, filenames in os.walk(source_path):
         replica_dir = source_dir.replace(source_path, replica_path, 1)
@@ -86,24 +109,7 @@ def main():
     log_buffer = args.log_buffer
     backup_count = args.backup_count
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-    )
-
-    file_handler = RotatingFileHandler(
-        log_file, maxBytes=log_buffer, backupCount=backup_count, encoding="utf-8"
-    )
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+    logger = setup_logger(log_file, log_buffer, backup_count)
 
     while True:
         try:
