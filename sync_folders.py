@@ -64,6 +64,8 @@ def sync_folder(source_path: str, replica_path: str, logger: logging.Logger) -> 
             source_file = os.path.join(source_dir, filename)
             replica_file = os.path.join(replica_dir, filename)
 
+            # I could manually use e.g. MD5 on files and compare them instead of filecmp.cmp
+            # but this seems cleaner and brings the same result
             if not os.path.exists(replica_file) or not filecmp.cmp(
                 source_file, replica_file
             ):
