@@ -6,6 +6,15 @@ import shutil
 import time
 
 from logging.handlers import RotatingFileHandler
+from datetime import datetime, timezone
+
+
+class UTCFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        utc_dt = datetime.fromtimestamp(record.created, tz=timezone.utc)
+        utc_dt_iso = utc_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+        
+        return utc_dt_iso
 
 
 def setup_logger(log_file: str, log_buffer: int, backup_count: int) -> logging.Logger:
@@ -24,9 +33,7 @@ def setup_logger(log_file: str, log_buffer: int, backup_count: int) -> logging.L
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
-    formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-    )
+    formatter = UTCFormatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
     file_handler = RotatingFileHandler(
         log_file, maxBytes=log_buffer, backupCount=backup_count, encoding="utf-8"
