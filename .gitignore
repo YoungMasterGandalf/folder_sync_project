@@ -1,2 +1,5 @@
 # virtual env forlder
 /venv
+
+__pycache__
+.pytest*
